@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
-# Bash (init) script to manage manage_my_process.
-
-# Check if argument is provided
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 {start|stop|restart}"
-    exit 1
+#manage
+if [[ "$#" == "1" ]]
+then
+        if [[ "$1" == "start" ]]
+        then
+                ./manage_my_process &
+                echo "$!" > /var/run/my_process.pid
+                echo "manage_my_process started"
+        elif [[ "$1" == "stop" ]]
+        then
+                if test -f "/var/run/my_process.pid"
+                then
+                        kill "$(cat /var/run/my_process.pid)"
+                fi
+                rm /var/run/my_process.pid
+                echo "manage_my_process stopped"
+        elif [[ "$1" == "restart" ]]
+        then
+                # stop program
+                if test -f "/var/run/my_process.pid"
+                then
+                        kill "$(cat /var/run/my_process.pid)"
+                fi
+                # start program 
+                ./manage_my_process &
+                echo "$!" > /var/run/my_process.pid
+                echo "manage_my_process restarted"
+        else
+                echo "Usage: manage_my_process {start|stop|restart}"
+        fi
+else
+        echo "Usage: manage_my_process {start|stop|restart}"
 fi
-
-# Execute the specified action
-case "$1" in
-    start)
-        ./manage_my_process start
-        ;;
-    stop)
-        ./manage_my_process stop
-        ;;
-    restart)
-        ./manage_my_process restart
-        ;;
-    *)
-        echo "Usage: $0 {start|stop|restart}"
-        exit 1
-        ;;
-esac
-
-exit 0
